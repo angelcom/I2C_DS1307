@@ -8,7 +8,7 @@
  * I2C DS1307 时钟
  */
 //% weight=100 color=#090c11 icon="/u2618"
-namespace I2C_LCD1602 {
+namespace I2C_DS1307  {
 
     //I2C Slave Address
     const DS1307_ADDRESS: number = 0x68;
