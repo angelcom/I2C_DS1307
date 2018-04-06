@@ -63,19 +63,14 @@ namespace I2C_DS1307  {
         DS1307SquareWaveOut_Low = 0b00000000,
     };
 
-
-
-
     export function IsDateTimeValid(): boolean {
         return GetIsRunning();
     }
-
 
     export function GetIsRunning(): boolean {
         let sreg = getReg(DS1307_REG_STATUS);
         return !(sreg & _BV(DS1307_CH));
     }
-
 
     // function SetIsRunning(isRunning: boolean) {
     //     let sreg = getReg(DS1307_REG_STATUS);
