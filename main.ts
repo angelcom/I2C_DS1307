@@ -75,19 +75,19 @@ namespace I2C_LCD1602 {
     }
 
 
-    function SetIsRunning(isRunning: boolean) {
-        let sreg = getReg(DS1307_REG_STATUS);
-        if (isRunning) {
-            sreg &= ~_BV(DS1307_CH);
-        }
-        else {
-            sreg |= _BV(DS1307_CH);
-        }
-        setReg(DS1307_REG_STATUS, sreg);
-    }
+    // function SetIsRunning(isRunning: boolean) {
+    //     let sreg = getReg(DS1307_REG_STATUS);
+    //     if (isRunning) {
+    //         sreg &= ~_BV(DS1307_CH);
+    //     }
+    //     else {
+    //         sreg |= _BV(DS1307_CH);
+    //     }
+    //     setReg(DS1307_REG_STATUS, sreg);
+    // }
 
 
-    function SetTime(year: number, month: number, day: number, week: DateTimeWeek, hour: number, minute: number, second: number) {
+   export function SetTime(year: number, month: number, day: number, week: DateTimeWeek, hour: number, minute: number, second: number) {
         // retain running state
         let sreg = getReg(DS1307_REG_STATUS) & _BV(DS1307_CH);
 
@@ -127,7 +127,7 @@ namespace I2C_LCD1602 {
      */
     //% blockId="I2C_DS1307_GET_TimePart" block="目前时间的 %part"
     //% weight=90 blockGap=8
-    function GetTimePart(part: TimePart): number {
+    export function GetTimePart(part: TimePart): number {
         let sreg = getReg(part);
         switch (part) {
             case TimePart.second:
@@ -149,7 +149,7 @@ namespace I2C_LCD1602 {
         return 0;
     }
 
-    function GetTime(): string {
+    export function GetTime(): string {
         let buf = pins.createBuffer(7)
         buf = pins.i2cReadBuffer(DS1307_ADDRESS, 7)
 
