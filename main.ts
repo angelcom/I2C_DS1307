@@ -121,7 +121,12 @@ namespace I2C_LCD1602 {
     //     SetTimeUX(& UXnow);
     // }
 
-
+  /**
+     * 获取时间部分
+     * @param part 时间部分类型, TimePart.second
+     */
+    //% blockId="I2C_DS1307_GET_TimePart" block="目前时间的 %part"
+    //% weight=90 blockGap=8
     function GetTimePart(part: TimePart): number {
         let sreg = getReg(part);
         switch (part) {
