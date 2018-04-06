@@ -33,7 +33,7 @@ namespace I2C_LCD1602 {
     // DS1307 Status Register Bits
     const DS1307_CH: number = 7;
 
-    enum DS1307SquareWaveOut {
+    export enum DS1307SquareWaveOut {
         DS1307SquareWaveOut_1Hz = 0b00010000,
         DS1307SquareWaveOut_4kHz = 0b00010001,
         DS1307SquareWaveOut_8kHz = 0b00010010,
@@ -42,7 +42,7 @@ namespace I2C_LCD1602 {
         DS1307SquareWaveOut_Low = 0b00000000,
     };
 
-    enum DateTimeWeek {
+    export enum DateTimeWeek {
         星期天 = 1,
         星期一 = 2,
         星期二 = 3,
@@ -52,7 +52,7 @@ namespace I2C_LCD1602 {
         星期六 = 7,
     }
 
-    enum TimePart {
+    export enum TimePart {
         second = 0,
         minute = 1,
         hour = 2,
@@ -64,12 +64,12 @@ namespace I2C_LCD1602 {
 
 
 
-    function IsDateTimeValid(): boolean {
+    export function IsDateTimeValid(): boolean {
         return GetIsRunning();
     }
 
 
-    function GetIsRunning(): boolean {
+    export function GetIsRunning(): boolean {
         let sreg = getReg(DS1307_REG_STATUS);
         return !(sreg & _BV(DS1307_CH));
     }
