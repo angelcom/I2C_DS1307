@@ -27,7 +27,8 @@ enum DateTimeWeek {
 /**
  * I2C DS1307 时钟
  */
-//% weight=100 color=#090c11 icon=""
+//% weight=100 color=#090c11 
+//% icon="\uf26c"
 namespace I2C_DS1307  {
 
     //I2C Slave Address
@@ -128,6 +129,7 @@ namespace I2C_DS1307  {
      */
     //% blockId="I2C_DS1307_GET_TimePart" block="目前时间的 %part"
     //% weight=90 blockGap=8
+    //% icon="\uf26c"
     export function GetTimePart(part: TimePart): number {
         let sreg = getReg(part);
         switch (part) {
