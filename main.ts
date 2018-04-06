@@ -4,10 +4,30 @@
 * http://www.lingsky.net
 */
 
+enum DateTimeWeek {
+    星期天 = 1,
+    星期一 = 2,
+    星期二 = 3,
+    星期三 = 4,
+    星期四 = 5,
+    星期五 = 6,
+    星期六 = 7,
+}
+
+ enum TimePart {
+    second = 0,
+    minute = 1,
+    hour = 2,
+    week = 3,
+    day = 4,
+    month = 5,
+    year = 6
+ }
+
 /**
  * I2C DS1307 时钟
  */
-//% weight=100 color=#090c11 icon="/u2618"
+//% weight=100 color=#090c11 icon=""
 namespace I2C_DS1307  {
 
     //I2C Slave Address
@@ -33,7 +53,7 @@ namespace I2C_DS1307  {
     // DS1307 Status Register Bits
     const DS1307_CH: number = 7;
 
-    export enum DS1307SquareWaveOut {
+ enum DS1307SquareWaveOut {
         DS1307SquareWaveOut_1Hz = 0b00010000,
         DS1307SquareWaveOut_4kHz = 0b00010001,
         DS1307SquareWaveOut_8kHz = 0b00010010,
@@ -42,25 +62,6 @@ namespace I2C_DS1307  {
         DS1307SquareWaveOut_Low = 0b00000000,
     };
 
-    export enum DateTimeWeek {
-        星期天 = 1,
-        星期一 = 2,
-        星期二 = 3,
-        星期三 = 4,
-        星期四 = 5,
-        星期五 = 6,
-        星期六 = 7,
-    }
-
-    export enum TimePart {
-        second = 0,
-        minute = 1,
-        hour = 2,
-        week = 3,
-        day = 4,
-        month = 5,
-        year = 6
-    }
 
 
 
@@ -96,8 +97,8 @@ namespace I2C_DS1307  {
         buf[0] = DS1307_REG_TIMEDATE
         buf[1] = second | sreg
         buf[2] = minute
-        buf[3] = hour
-        buf[4] = week
+        buf[3] = hour - 1
+        buf[4] = week + 1
         buf[5] = day
         buf[6] = month
         buf[7] = year
@@ -135,7 +136,7 @@ namespace I2C_DS1307  {
             case TimePart.minute:
                 return BcdToUint8(sreg);
             case TimePart.hour:
-                return BcdHourToUint8(sreg);
+                return BcdHourToUint8(sreg)+1;
             case TimePart.week:
                 return sreg - 1;
             case TimePart.day:
@@ -155,7 +156,7 @@ namespace I2C_DS1307  {
 
         let second = BcdToUint8(buf[0] & 0x7F);
         let minute = BcdToUint8(buf[1]);
-        let hour = BcdHourToUint8(buf[2]);
+        let hour = BcdHourToUint8(buf[2])+1;
         let week = buf[3] - 1;
         let day = BcdToUint8(buf[4]);
         let month = BcdToUint8(buf[5]) - 1;
