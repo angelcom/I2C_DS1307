@@ -1,6 +1,6 @@
 {
     "name": "I2C_DS1307",
-    "version": "0.9.9",
+    "version": "0.9.10",
     "description": "",
     "license": "MIT",
     "dependencies": {
