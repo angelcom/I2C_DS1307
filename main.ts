@@ -65,6 +65,8 @@ namespace I2C_DS1307 {
     const DS1307_REG_RAMEND: number = 0x3f;
     const DS1307_REG_RAMSIZE: number = DS1307_REG_RAMEND - DS1307_REG_RAMSTART;
 
+    const DS1307_REG_COUNTDOWN: number = 0x08;// 倒计时存储单元，一共7个单元，秒，分，星期，时，日，月，年（此处星期无效）
+
     //DS1307 Register Data Size if not just 1
     const DS1307_REG_TIMEDATE_SIZE: number = 7;
 
@@ -189,8 +191,15 @@ namespace I2C_DS1307 {
         let sreg = 0;
 
         // set the date time
+        SetDateTimeEx(DS1307_REG_TIMEDATE, year, month, day, week, hour, minute, second);
+    }
+
+    function SetDateTimeEx(reg: number, year: number, month: number, day: number, week: DateTimeWeek, hour: number, minute: number, second: number) {
+        let sreg = 0;
+
+        // set the date time
         let buf = pins.createBuffer(8)
-        buf[0] = DS1307_REG_TIMEDATE
+        buf[0] = reg
         buf[1] = Uint8ToBcd(second | sreg)
         buf[2] = Uint8ToBcd(minute)
         buf[3] = Uint8ToBcd(hour - 1)
@@ -355,22 +364,22 @@ namespace I2C_DS1307 {
 
 
     //--------------------------以下是私有方法
-    function i2cWrite16(addr: number, reg: number, value: number) {
-        pins.i2cWriteNumber(addr, reg * 256 | value, 9)
-    }
+    // function i2cWrite16(addr: number, reg: number, value: number) {
+    //     pins.i2cWriteNumber(addr, reg * 256 | value, 9)
+    // }
 
-    function i2cwrite(addr: number, reg: number, value: number) {
-        let buf = pins.createBuffer(2)
-        buf[0] = reg
-        buf[1] = value
-        pins.i2cWriteBuffer(addr, buf)
-    }
+    // function i2cwrite(addr: number, reg: number, value: number) {
+    //     let buf = pins.createBuffer(2)
+    //     buf[0] = reg
+    //     buf[1] = value
+    //     pins.i2cWriteBuffer(addr, buf)
+    // }
 
-    function i2ccmd(addr: number, value: number) {
-        let buf = pins.createBuffer(1)
-        buf[0] = value
-        pins.i2cWriteBuffer(addr, buf)
-    }
+    // function i2ccmd(addr: number, value: number) {
+    //     let buf = pins.createBuffer(1)
+    //     buf[0] = value
+    //     pins.i2cWriteBuffer(addr, buf)
+    // }
 
     function i2cread(addr: number, reg: number) {
         pins.i2cWriteNumber(addr, reg, NumberFormat.UInt8BE);
@@ -383,9 +392,9 @@ namespace I2C_DS1307 {
         return regValue;
     }
 
-    function setReg(regAddress: number, regValue: number) {
-        i2cWrite16(DS1307_ADDRESS, regAddress, regValue)
-    }
+    // function setReg(regAddress: number, regValue: number) {
+    //     i2cWrite16(DS1307_ADDRESS, regAddress, regValue)
+    // }
 
     function BcdToUint8(val: number): number {
         return val - 6 * (val >> 4);
