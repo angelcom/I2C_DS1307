@@ -2,6 +2,8 @@
 * makecode I2C DS1307 package for microbit.
 * From ling.
 * http://www.lingsky.net
+* 
+* 2018-10-12 update for makecode v1.
 */
 
 enum DateTimeWeek {
@@ -33,20 +35,14 @@ enum TimePart {
 
 enum DateTimePart {
     //% block="日期和时间"
-    datetime = 0,
+    datetime = 7,
     //% block="日期"
-    date = 1,
+    date = 4,
     //% block="时间"
-    time = 2,
+    time = 1,
+    //% block="星期"
+    week = 2,
 }
-
-enum YesOrNo {
-    //% block="是"
-    yes = 1,
-    //% block="否"
-    no = 0
-}
-
 
 /**
  * I2C DS1307 时钟
@@ -130,7 +126,7 @@ namespace I2C_DS1307 {
         // set the date time
         let buf = pins.createBuffer(5)
         buf[0] = DS1307_REG_TIMEDATE + 3
-        buf[1] = Uint8ToBcd(week + 1)
+        buf[1] = Uint8ToBcd(week)
         buf[2] = Uint8ToBcd(day)
         buf[3] = Uint8ToBcd(month)
         buf[4] = Uint8ToBcd(year)
@@ -203,7 +199,7 @@ namespace I2C_DS1307 {
         buf[1] = Uint8ToBcd(second | sreg)
         buf[2] = Uint8ToBcd(minute)
         buf[3] = Uint8ToBcd(hour - 1)
-        buf[4] = Uint8ToBcd(week + 1)
+        buf[4] = Uint8ToBcd(week)
         buf[5] = Uint8ToBcd(day)
         buf[6] = Uint8ToBcd(month)
         buf[7] = Uint8ToBcd(year)
@@ -226,7 +222,7 @@ namespace I2C_DS1307 {
             case TimePart.hour:
                 return (BcdHourToUint8(sreg) + 1) % 24;
             case TimePart.week:
-                return (sreg - 1);
+                return (sreg);
             case TimePart.day:
                 return BcdToUint8(sreg);
             case TimePart.month:
@@ -236,16 +232,54 @@ namespace I2C_DS1307 {
         }
         return -1;
     }
+    //% blockId="I2C_DS1307_GetWeek" block="获取星期字符串"
+    export function GetWeek(week=0): string {
+        week = week==0?getReg(TimePart.week):week;
+        switch (week) {
+            case 1:
+                return "SUM";
+            case 2:
+                return "MON";
+            case 3:
+                return "TUE";
+            case 4:
+                return "WED";
+            case 5:
+                return "THU";
+            case 6:
+                return "FRI";
+            case 7:
+                return "SAT";
+        }
+        return week.toString();
+    }
+
+
+    function add0(num: number): string {
+        return num > 9 ? num.toString() : "0" + num;
+    }
+
+    // "a"->"   a"
+    // "abc"->" abc"
+    //     padLeft("abc"," ",4)
+    //     "abc".padLeft(" ",4)
+    //     function padLeft(str:string,f:string,num:number):string {
+    //         for(let i=0,l=num-str.length;i<l;i++){
+    //             str=f+str;
+    //         }
+    //         return str;
+    //     }
+
 
 
     /**
        * 获取时间部分
        * @param part 时间部分类型, eg: DateTimePart.datetime
-       * @param showSecond 显示秒, eg: YesOrNo.yes
+       * @param showSecond 显示秒, eg: true
         */
-    //% blockId="I2C_DS1307_GET_Time" block="获取时间字符串  %part"
+    //% blockId="I2C_DS1307_GET_Time" block="获取时间字符串  %part|显示秒 %showSecond"
     //% weight=90 blockGap=8
-    export function GetTime(part: DateTimePart, showSecond: YesOrNo = YesOrNo.yes): string {
+    export function GetTime(part: DateTimePart, showSecond: boolean): string {
         pins.i2cWriteNumber(DS1307_ADDRESS, 0, NumberFormat.UInt8BE);
         let buf = pins.createBuffer(7)
         buf = pins.i2cReadBuffer(DS1307_ADDRESS, 7)
@@ -253,7 +287,7 @@ namespace I2C_DS1307 {
         let second = BcdToUint8(buf[0] & 0x7F);
         let minute = BcdToUint8(buf[1]);
         let hour = (BcdHourToUint8(buf[2]) + 1) % 24;
-        let week = buf[3] - 1;
+        let week = buf[3];
         let day = BcdToUint8(buf[4]);
         let month = BcdToUint8(buf[5]);
         let year = BcdToUint8(buf[6]);
@@ -262,19 +296,22 @@ namespace I2C_DS1307 {
             case DateTimePart.date:
                 return year + "/" + month + "/" + day;
             case DateTimePart.time:
-                if (showSecond == YesOrNo.no) {
-                    return hour + ":" + minute;
+                if (showSecond) {
+                    return add0(hour) + ":" + add0(minute);
                 }
                 else {
-                    return hour + ":" + minute + ":" + second;
+                    return add0(hour) + ":" + add0(minute) + ":" + add0(second);
                 }
+            case DateTimePart.week:
+                return GetWeek(week);
 
         }
-        if (showSecond == YesOrNo.no) {
-            return year + "/" + month + "/" + day + " " + hour + ":" + minute;
+        // 返回完整时间
+        if (showSecond) {
+            return add0(year) + "/" + add0(month) + "/" + add0(day) + " " + add0(hour) + ":" + add0(minute);
         }
         else {
-            return year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
+            return add0(year) + "/" + add0(month) + "/" + add0(day) + " " + add0(hour) + ":" + add0(minute) + add0(second);
         }
     }
 
@@ -401,7 +438,7 @@ namespace I2C_DS1307 {
     }
 
     function Uint8ToBcd(val: number) {
-        return val + 6 * (val / 10);
+        return val + 6 * (val - val % 10) / 10;
     }
 
     function BcdHourToUint8(bcdHour: number) {
